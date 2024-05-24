@@ -15,7 +15,7 @@ int main()
     LuciferCipher cipher;
     const int numRounds = 1; // Количество раундов
 
-    // Пример использования
+    // Unit-Tests
     string text = "Основы ИБ крутой предмет, лучший курс, много узнали. Устали!!! ";
     string key = "0123456789abcdef0123456789abcdef"; // 128-битный ключ
 
@@ -31,8 +31,8 @@ int main()
     timeEnd = std::chrono::high_resolution_clock::now();
 
     timeElapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();
+    
     cout << "Time for decryption: " << timeElapsed << " ns" << endl;
-
     cout << text << endl;
     cout << encryptResult << endl;
     cout << decryptResult << endl;
