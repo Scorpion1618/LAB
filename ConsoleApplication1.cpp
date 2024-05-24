@@ -35,5 +35,6 @@ int main()
 
     cout << text << endl;
     cout << encryptResult << endl;
+    //hotfix output
     cout << decryptResult << endl;
 }
