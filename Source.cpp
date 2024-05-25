@@ -1,9 +1,21 @@
+
 #include "LuciferCipher.h"
 
+/**
+* @brief A class with a description of the cipher structure
+*
+* This class describes the format of an incoming message, cipher blocks, and round keys.
+*/
 LuciferCipher::LuciferCipher()
 {
 }
 
+
+/**
+* @brief The function of the reverse S-block
+*
+* The function is used to create a reverse S-block when decrypting a message.
+*/
 void LuciferCipher::genInverseSBox()
 {
     for (unsigned int i = 0; i < 16; ++i) {
@@ -49,11 +61,17 @@ uint8_t LuciferCipher::hexCharToDecimal(char hexChar)
         return hexChar - 'a' + 10;
     }
     else {
-        // Íåêîððåêòíûé ñèìâîë
+        // ÐÐµÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ñ‹Ð¹ ÑÐ¸Ð¼Ð²Ð¾Ð»
         return 255;
     }
 }
 
+/**
+* @brief Round key generation function.
+*
+* @param key 8-bit key
+* @param roundKeys The key matrix
+*/
 void LuciferCipher::genRoundKeys(uint8_t* key, uint8_t roundKeys[16][8])
 {
     for (unsigned int i = 0; i < 16; ++i) {
@@ -63,6 +81,12 @@ void LuciferCipher::genRoundKeys(uint8_t* key, uint8_t roundKeys[16][8])
     }
 }
 
+/**
+* @brief The bit permutation function
+*
+* @param block A block of bits
+* @param p_box Permutation box
+*/
 void LuciferCipher::permuteBits(uint8_t_union* block, uint8_t* p_box)
 {
     uint8_t_union tmp[16] = { 0 };
@@ -102,6 +126,12 @@ void LuciferCipher::permuteBits(uint8_t_union* block, uint8_t* p_box)
     }
 }
 
+/**
+* @brief Bit block replacement function
+*
+* @param block A block of bits
+* @param s_box Substitution block 
+*/
 void LuciferCipher::transformSBits(uint8_t_union* block, uint8_t* s_box)
 {
     for (unsigned int i = 0; i < 16; ++i) {
@@ -130,19 +160,28 @@ void LuciferCipher::encryptBlock(uint8_t_union* block, uint8_t* p_box, uint8_t* 
 
     transformSBits(block, s_box);
 
-    // Ïðèìåíåíèå ïåðåñòàíîâêè áèòîâ
+    // ÐŸÑ€Ð¸Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ Ð¿ÐµÑ€ÐµÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¸ Ð±Ð¸Ñ‚Ð¾Ð²
     permuteBits(block, p_box);
 }
 
+/**
+* @brief Encryption function
+*
+* @param text The source text
+* @param key The key for encryption
+* @param numRounds Number of rounds of encryption
+* 
+* @return Encrypted message
+*/
 string LuciferCipher::encrypt(const string& text, const string& key, unsigned int numRounds)
 {
-    // Ïðîâåðêà êîððåêòíîñòè äëèíû êëþ÷à
+    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ð¾ÑÑ‚Ð¸ Ð´Ð»Ð¸Ð½Ñ‹ ÐºÐ»ÑŽÑ‡Ð°
     if (key.size() != 32) {
         cout << "Miscusi: Key size is not 128 bit!\n";
         return "";
     }
 
-    // Ïðîâåðêà êîððåêòíîñòè ôîðìàòà êëþ÷à
+    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ð¾ÑÑ‚Ð¸ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð° ÐºÐ»ÑŽÑ‡Ð°
     for (char hexChar : key) {
         if (!isxdigit(hexChar)) {
             cout << "Miscusi: Key is not in hex format!\n";
@@ -186,7 +225,7 @@ string LuciferCipher::encrypt(const string& text, const string& key, unsigned in
 
 void LuciferCipher::decryptBlock(uint8_t_union* block, uint8_t* p_box, uint8_t* s_box, uint8_t roundKeys[16][8], unsigned int round)
 {
-    // Îáðàòíàÿ ïåðåñòàíîâêà áèòîâ
+    // ÐžÐ±Ñ€Ð°Ñ‚Ð½Ð°Ñ Ð¿ÐµÑ€ÐµÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° Ð±Ð¸Ñ‚Ð¾Ð²
     for (unsigned int i = 0; i < 128; ++i) {
         p_box_reverse[p_box[i]] = i;
     }
@@ -201,21 +240,30 @@ void LuciferCipher::decryptBlock(uint8_t_union* block, uint8_t* p_box, uint8_t* 
     }
 }
 
+/**
+* @brief Decryption function
+*
+* @param text Encrypted text
+* @param key The key for decryption
+* @param numRounds Number of rounds of decryption
+*
+* @return The decrypted message
+*/
 string LuciferCipher::decrypt(const string& text, const string& key, unsigned int numRounds)
 {
-    // Ïðîâåðêà êîððåêòíîñòè äëèíû òåêñòà
+    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ð¾ÑÑ‚Ð¸ Ð´Ð»Ð¸Ð½Ñ‹ Ñ‚ÐµÐºÑÑ‚Ð°
     if (text.size() % 32 != 0) {
         cout << "Miscusi: Text length is not a multiple of 16 bytes!\n";
         return "";
     }
 
-    // Ïðîâåðêà êîððåêòíîñòè äëèíû êëþ÷à
+    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ð¾ÑÑ‚Ð¸ Ð´Ð»Ð¸Ð½Ñ‹ ÐºÐ»ÑŽÑ‡Ð°
     if (key.size() != 32) {
         cout << "Miscusi: Key size is not 128 bit!\n";
         return "";
     }
 
-    // Ïðîâåðêà êîððåêòíîñòè ôîðìàòà êëþ÷à
+    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ð¾ÑÑ‚Ð¸ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð° ÐºÐ»ÑŽÑ‡Ð°
     for (char hexChar : key) {
         if (!isxdigit(hexChar)) {
             cout << "Miscusi: Key is not in hex format!\n";
